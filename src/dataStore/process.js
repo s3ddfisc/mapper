@@ -6,8 +6,8 @@ export const useProcess = defineStore('process', {
     return {
       processes: [
         { label: 'process 1', id: 0, properties: {property1: 10, property2: 'Test', property3: true} },
-        { label: 'process 2', id: 1, properties: {property1: 10, property2: 'Test', property3: true} },
-        { label: 'process 3', id: 2, properties: {property1: 10, property2: 'Test', property3: true} }],
+        { label: 'process 2', id: 1, properties: {property1: 11, property2: 'Test', property3: false} },
+        { label: 'process 3', id: 2, properties: {property1: 12, property2: 'Test', property3: true} }],
       processData: {
         id: Number,
         label: String,
