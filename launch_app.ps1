@@ -1,1 +1,0 @@
-serve -s dist -l 45222

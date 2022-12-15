@@ -20,6 +20,7 @@
     "bootstrap": "^5.2.3",
     "bootstrap-vue": "^2.23.1",
     "mitt": "^3.0.0",
+    "pinia": "^2.0.28",
     "roboto-fontface": "*",
     "usemodal-vue3": "^0.3.7",
     "vue": "^3.2.13",
