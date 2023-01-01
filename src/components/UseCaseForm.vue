@@ -14,16 +14,16 @@
     },
     methods: {
       addUseCase () {
-        this.configStore.setUseCaseForm()
+        this.configStore.setUseCaseForm(false)
         this.useCaseStore.addUseCase()
       },
       updateUseCase () {
-        this.configStore.setUseCaseForm()
+        this.configStore.setUseCaseForm(false)
         this.configStore.setUseCaseEditMode(false)
         this.useCaseStore.updateUseCase()
       },
       closeUseCaseForm () {
-        this.configStore.setUseCaseForm()
+        this.configStore.setUseCaseForm(false)
         this.useCaseStore.clearData()
         this.configStore.setUseCaseEditMode(false)
       },
