@@ -31,7 +31,7 @@
           this.configStore.setEditableProcess(id)
         }
       },
-      deletionTriggered (index) {}, // TODO
+      // deletionTriggered (index) {},
     },
   }
 </script>

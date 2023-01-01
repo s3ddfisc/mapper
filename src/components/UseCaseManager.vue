@@ -12,11 +12,12 @@
     },
     data: () => ({
       buckets: [
-        { id: 1, title: 'Backlog', targets: ['Build', 'Insight'], targetable: false, targeted: false },
-        { id: 2, title: 'Build', targets: ['Backlog', 'Insight'], targetable: false, targeted: false },
-        { id: 3, title: 'Insight', targets: ['Backlog', 'Build', 'Action'], targetable: false, targeted: false },
-        { id: 4, title: 'Action', targets: ['Backlog', 'Build', 'Insight', 'Monitor'], targetable: false, targeted: false },
-        { id: 5, title: 'Monitor', targets: ['Build', 'Action'], targetable: false, targeted: false },
+        { id: 1, title: 'Build Backlog', targets: ['Build', 'Insight'], targetable: false, targeted: false },
+        { id: 2, title: 'Build', targets: ['Build Backlog', 'Insight'], targetable: false, targeted: false },
+        { id: 3, title: 'Insight', targets: ['Build Backlog', 'Build', 'Action Backlog'], targetable: false, targeted: false },
+        { id: 4, title: 'Action Backlog', targets: ['Build Backlog', 'Insight', 'Action'], targetable: false, targeted: false },
+        { id: 5, title: 'Action', targets: ['Build Backlog', 'Action Backlog', 'Insight', 'Monitor'], targetable: false, targeted: false },
+        { id: 6, title: 'Monitor', targets: ['Build', 'Action Backlog'], targetable: false, targeted: false },
       ],
     }),
     computed: {

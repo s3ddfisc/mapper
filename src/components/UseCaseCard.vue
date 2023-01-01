@@ -16,8 +16,8 @@
     methods: {
       edit () {
         this.useCaseStore.setUseCaseData(this.id)
-        this.configStore.setUseCaseEditMode(true)
-        this.configStore.setUseCaseForm()
+        this.configStore.setUseCaseEditMode()
+        this.configStore.setUseCaseForm(true)
       },
     },
   }
