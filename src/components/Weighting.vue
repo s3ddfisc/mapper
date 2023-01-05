@@ -1,7 +1,6 @@
 <script lang="ts">
   import { mapStores } from 'pinia'
-  import { useGlobal } from '../dataStore/global'
-  import { toRaw } from 'vue'
+  import { useUseCase } from '../dataStore/useCase'
 
   export default {
     name: 'Weighting',
@@ -14,76 +13,80 @@
           12: 'significantly higher',
           16: 'absolutely dominating',
         },
-        categoryPairs: [],
-        pairWeighting: [],
       }
     },
-    watch: {
-      categoryPairs: {
-        handler () {
-          this.pairWeighting.splice(0)
-          this.categoryPairs.forEach(pair => {
-            if (pair.importance === 8) {
-              this.pairWeighting.push([
-                pair.category1,
-                pair.category2,
-                1,
-              ])
-            } else if (pair.importance < 8) {
-              this.pairWeighting.push([
-                pair.category1,
-                pair.category2,
-                9 - pair.importance,
-              ])
-            } else {
-              this.pairWeighting.push([
-                pair.category1,
-                pair.category2,
-                1 / (pair.importance - 7),
-              ])
-            }
-          })
-          this.globalStore.updateWeights(toRaw(this.pairWeighting))
-        },
-        deep: true,
-      },
-    },
-    mounted () {
-      for (let i = 0; i < this.globalStore.categories.length; i++) {
-        for (let j = i + 1; j < this.globalStore.categories.length; j++) {
-          this.categoryPairs.push({
-            category1: this.globalStore.categories[i].label,
-            category2: this.globalStore.categories[j].label,
-            importance: 8,
-          })
-        }
-      }
+    created () {
+      this.useCaseStore.setCategoryPairs()
     },
     computed: {
-      ...mapStores(useGlobal),
+      ...mapStores(useUseCase),
+    },
+    methods: {
+      updateWeights () {
+        this.useCaseStore.updateWeights()
+      },
     },
   }
 </script>
 
 <template>
   <v-card>
-    <div class="text-caption">Assess the relative importance of each category pair</div>
-    <div v-for="(value, index) in categoryPairs" :key="index">
-      <v-slider
-        v-model="value.importance"
-        :ticks="tickLabels"
-        :max="16"
-        step="1"
-        show-ticks="always"
-        tick-size="4"
-        >
-        <template v-slot:prepend>
-          <label>{{value.category1}}</label>
-        </template>
-        <template v-slot:append>
-          <label>{{value.category2}}</label>
-        </template>
-      </v-slider>
-    </div>
+    <v-card-title>
+      Assess the relative importance of each category pair
+    </v-card-title>
+    <v-card-text>
+      <v-card>
+        <v-card-title>Global Categories</v-card-title>
+        <v-card-text>
+          <div v-for="(value, index) in useCaseStore.getGlobalCategoryPairs" :key="index">
+            <v-row>
+              <v-col>
+                <label>{{value.category1}}</label>
+              </v-col>
+              <v-col cols="9">
+                <v-slider
+                  v-model="value.importance"
+                  :ticks="tickLabels"
+                  :max="16"
+                  step="1"
+                  show-ticks="always"
+                  tick-size="4"
+                  @click="updateWeights"
+                />
+              </v-col>
+              <v-col>
+                <label>{{value.category2}}</label>
+              </v-col>
+            </v-row>
+          </div>
+        </v-card-text>
+      </v-card>
+      <v-card>
+        <v-card-title>Risk reduction</v-card-title>
+        <v-card-text>
+          <div v-for="(value, index) in useCaseStore.getLocalCategoryPairs" :key="index">
+            <v-row>
+              <v-col>
+                <label>{{value.category1}}</label>
+              </v-col>
+              <v-col cols="9">
+                <v-slider
+                  v-model="value.importance"
+                  :ticks="tickLabels"
+                  :max="16"
+                  step="1"
+                  show-ticks="always"
+                  tick-size="4"
+                  @click="updateWeights"
+                />
+              </v-col>
+              <v-col>
+                <label>{{value.category2}}</label>
+              </v-col>
+            </v-row>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-card-text>
   </v-card>
 </template>

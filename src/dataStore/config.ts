@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 
 export const useConfig = defineStore('config', {
- 
   state: () => {
     return {
       activeTab: 'UseCaseManager',
@@ -23,8 +22,6 @@ export const useConfig = defineStore('config', {
     },
     setEditableProcess (id) {
       this.editableProcess = id
-    }
-  }
-
-
+    },
+  },
 })

@@ -12,12 +12,11 @@
     },
     data: () => ({
       buckets: [
-        { id: 1, title: 'Build Backlog', targets: ['Build', 'Insight'], targetable: false, targeted: false },
-        { id: 2, title: 'Build', targets: ['Build Backlog', 'Insight'], targetable: false, targeted: false },
-        { id: 3, title: 'Insight', targets: ['Build Backlog', 'Build', 'Action Backlog'], targetable: false, targeted: false },
-        { id: 4, title: 'Action Backlog', targets: ['Build Backlog', 'Insight', 'Action'], targetable: false, targeted: false },
-        { id: 5, title: 'Action', targets: ['Build Backlog', 'Action Backlog', 'Insight', 'Monitor'], targetable: false, targeted: false },
-        { id: 6, title: 'Monitor', targets: ['Build', 'Action Backlog'], targetable: false, targeted: false },
+        { id: 0, title: 'Build Backlog', targets: ['Build & Insight'], targetable: false, targeted: false },
+        { id: 1, title: 'Build & Insight', targets: ['Build Backlog', 'Action Backlog'], targetable: false, targeted: false },
+        { id: 2, title: 'Action Backlog', targets: ['Build Backlog', 'Action'], targetable: false, targeted: false },
+        { id: 3, title: 'Action', targets: ['Build Backlog', 'Action Backlog', 'Monitor'], targetable: false, targeted: false },
+        { id: 4, title: 'Monitor', targets: ['Build Backlog', 'Action Backlog'], targetable: false, targeted: false },
       ],
     }),
     computed: {
@@ -51,9 +50,9 @@
         event.dataTransfer.setData('useCaseID', useCase.id)
       },
       allowDrop (event, bucketID) {
-        if (this.buckets[bucketID - 1].targetable) {
+        if (this.buckets[bucketID].targetable) {
           event.preventDefault()
-          this.buckets[bucketID - 1].targeted = true
+          this.buckets[bucketID].targeted = true
         }
       },
       endDrag () {
@@ -68,7 +67,7 @@
       },
       onDrop (event, bucketID) {
         this.useCaseStore.updateBucket(event.dataTransfer.getData('useCaseID'), bucketID)
-        this.buckets[bucketID - 1].targeted = false
+        this.buckets[bucketID].targeted = false
       },
       selectAll () {
         if (this.allProcessesSelected) {
@@ -125,9 +124,10 @@
         >
           <v-card-text>
             <UseCaseCard
-              v-for="useCase in useCaseStore.getUseCasesInBucket(bucket.id)"
+              v-for="(useCase, index) in useCaseStore.getUseCasesInBucket(bucket.id).sort(
+                (a, b) => (a.bucketscores[bucket.id] < b.bucketscores[bucket.id]) ? 1 : -1)"
               :id="useCase.id"
-              :key="useCase.id"
+              :key="index"
               draggable="true"
               class="card"
               @dragstart="startDrag($event, useCase)"

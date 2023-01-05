@@ -10,13 +10,13 @@
     computed: {
       ...mapStores(useUseCase, useConfig, useProcess),
       inFilter () {
-        return this.processStore.selectedProcesses.includes(this.useCaseStore.getProcesslabelById(this.id))
+        return this.processStore.selectedProcesses.includes(this.processStore.getLabelById(this.useCaseStore.getProcessIdById(this.id)))
       },
     },
     methods: {
       edit () {
         this.useCaseStore.setUseCaseData(this.id)
-        this.configStore.setUseCaseEditMode()
+        this.configStore.setUseCaseEditMode(true)
         this.configStore.setUseCaseForm(true)
       },
     },
@@ -26,7 +26,7 @@
 <template>
   <v-card v-if="this.inFilter" hover rounded min-width="100" @click="edit">
     <v-card-title>{{ useCaseStore.getLabelById(id) }}</v-card-title>
-    <v-card-subtitle>{{ useCaseStore.getProcesslabelById(id) + ' / ID: ' +
+    <v-card-subtitle>{{ this.processStore.getLabelById(this.useCaseStore.getProcessIdById(this.id)) + ' / ID: ' +
       useCaseStore.getIdById(id)
     }}</v-card-subtitle><br />
     <v-progress-linear
