@@ -14,7 +14,7 @@
       ...mapStores(useProcess, useConfig),
     },
     watch: {
-      activePanel (newValue, oldValue) {
+      activePanel (newValue) {
         if (newValue == null) {
           this.configStore.setEditableProcess(-1)
         }
@@ -94,28 +94,28 @@
           <v-row
             no-gutters
           >
-            <v-col cols="3">Property 1</v-col>
+            <v-col cols="3">{{ process.properties[0].label }}</v-col>
             <v-col cols="3">
               <v-text-field
-                v-model="process.properties.property1"
+                v-model="process.properties[0].value"
                 :disabled="process.id != configStore.editableProcess || process.id != this.activePanel"
                 type="number"
                 style="width: 75px"
                 density="compact"
               />
             </v-col>
-            <v-col cols="3">Property 2</v-col>
+            <v-col cols="3">{{ process.properties[1].label }}</v-col>
             <v-col cols="3">
               <v-text-field
-                v-model="process.properties.property2"
+                v-model="process.properties[1].value"
                 :disabled="process.id != configStore.editableProcess || process.id != this.activePanel"
                 density="compact"
               />
             </v-col>
-            <v-col cols="3">Property 3</v-col>
+            <v-col cols="3">{{ process.properties[2].label }}</v-col>
             <v-col cols="3">
               <v-radio-group
-                v-model="process.properties.property3"
+                v-model="process.properties[2].value"
                 :disabled="process.id != configStore.editableProcess || process.id != this.activePanel"
                 inline
               >
