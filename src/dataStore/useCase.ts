@@ -131,11 +131,11 @@ export const useUseCase = defineStore('useCase', {
     getScoreById: state => {
       return useCaseId => {
         if (state.useCases[useCaseId].bucketID === 0) {
-          return Math.round(100 * state.useCases[useCaseId].bucketscores[0])
+          return Math.round(state.useCases[useCaseId].bucketscores[0])
         } else if (state.useCases[useCaseId].bucketID === 1) {
           return Math.round(100 * state.useCases[useCaseId].bucketscores[1])
         } else if (state.useCases[useCaseId].bucketID === 2) {
-          return Math.round(100 * state.useCases[useCaseId].bucketscores[2])
+          return Math.round(state.useCases[useCaseId].bucketscores[2])
         } else if (state.useCases[useCaseId].bucketID === 3) {
           return Math.round(100 * state.useCases[useCaseId].bucketscores[3])
         } else if (state.useCases[useCaseId].bucketID === 4) {
@@ -205,13 +205,13 @@ export const useUseCase = defineStore('useCase', {
         console.log(category.label + ' ' + category.score)
         score = score + category.weight * category.score
       })
-      this.useCases[id].bucketscores[0] = score / 5
+      this.useCases[id].bucketscores[0] = score
     },
     setBucket2Score (id) {
       this.useCases[id].bucketscores[1] = Math.random()
     },
     setBucket3Score (id) {
-      this.useCases[id].bucketscores[2] = Math.random()
+      this.useCases[id].bucketscores[2] = Math.random() * 5
     },
     setBucket4Score (id) {
       this.useCases[id].bucketscores[3] = Math.random()
