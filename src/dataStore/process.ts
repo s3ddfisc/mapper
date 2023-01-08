@@ -76,4 +76,5 @@ export const useProcess = defineStore('process', {
       })
     },
   },
+  persist: true,
 })

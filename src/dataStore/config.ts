@@ -24,4 +24,5 @@ export const useConfig = defineStore('config', {
       this.editableProcess = id
     },
   },
+  persist: true,
 })
