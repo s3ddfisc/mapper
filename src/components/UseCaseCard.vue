@@ -29,7 +29,7 @@
     <v-card-subtitle>{{ this.processStore.getLabelById(this.useCaseStore.getProcessIdById(this.id)) + ' / ID: ' +
       useCaseStore.getIdById(id)
     }}</v-card-subtitle><br />
-    <v-progress-linear v-if="useCaseStore.getUseCaseById(id).bucketID === 0 || useCaseStore.getUseCaseById(id).bucketID === 2"
+    <v-progress-linear v-if="useCaseStore.getUseCaseById(id).bucketID === 0"
       :model-value="useCaseStore.getScoreById(id)*25 - 25"
       color="secondary"
       bg-color="primary"

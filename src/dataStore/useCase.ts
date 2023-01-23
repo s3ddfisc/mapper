@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import AHP from 'ahp'
+// import { useProcess } from './process'
 
 interface Item {
   label: string
@@ -44,7 +45,7 @@ export const useUseCase = defineStore('useCase', {
       pairWeighting: [] as PairWeighting[],
       useCaseData: <UseCase>{},
       categories: [{
-        label: 'Business importance',
+        label: 'Strategic importance',
         id: 0,
         weight: 1 / 3,
         items: [
@@ -54,7 +55,7 @@ export const useUseCase = defineStore('useCase', {
         ] as Item[],
       },
       {
-        label: 'Risk reduction',
+        label: 'Risk minimization',
         id: 1,
         weight: 1 / 3,
         categories: [{
@@ -98,12 +99,14 @@ export const useUseCase = defineStore('useCase', {
         }] as Category[],
       },
       {
-        label: 'Benefits',
+        label: 'Value potential',
         id: 2,
         weight: 1 / 3,
         items: [
-          { label: 'Monetary benefits', weight: 1 },
-          { label: 'Non-monetary benefits', weight: 1 },
+          { label: 'Time', weight: 1 },
+          { label: 'Cost', weight: 1 },
+          { label: 'Quality', weight: 1 },
+          { label: 'Flexibility', weight: 1 },
         ] as Item[],
       }] as Category[],
     }
@@ -131,11 +134,11 @@ export const useUseCase = defineStore('useCase', {
     getScoreById: state => {
       return useCaseId => {
         if (state.useCases[useCaseId].bucketID === 0) {
-          return Math.round(state.useCases[useCaseId].bucketscores[0])
+          return Math.round(100 * state.useCases[useCaseId].bucketscores[0]) / 100
         } else if (state.useCases[useCaseId].bucketID === 1) {
           return Math.round(100 * state.useCases[useCaseId].bucketscores[1])
         } else if (state.useCases[useCaseId].bucketID === 2) {
-          return Math.round(state.useCases[useCaseId].bucketscores[2])
+          return Math.round(100 * state.useCases[useCaseId].bucketscores[2])
         } else if (state.useCases[useCaseId].bucketID === 3) {
           return Math.round(100 * state.useCases[useCaseId].bucketscores[3])
         } else if (state.useCases[useCaseId].bucketID === 4) {
@@ -169,13 +172,13 @@ export const useUseCase = defineStore('useCase', {
       this.clearData()
     },
     setScores (id) {
+      this.setBucket0Score(id)
       this.setBucket1Score(id)
       this.setBucket2Score(id)
       this.setBucket3Score(id)
       this.setBucket4Score(id)
-      this.setBucket5Score(id)
     },
-    setBucket1Score (id) {
+    setBucket0Score (id) {
       let score = 0
       this.useCases[id].categories.forEach(category => {
         category.score = 0
@@ -207,16 +210,16 @@ export const useUseCase = defineStore('useCase', {
       })
       this.useCases[id].bucketscores[0] = score
     },
-    setBucket2Score (id) {
+    setBucket1Score (id) {
       this.useCases[id].bucketscores[1] = Math.random()
     },
-    setBucket3Score (id) {
-      this.useCases[id].bucketscores[2] = Math.random() * 5
+    setBucket2Score (id) {
+      this.useCases[id].bucketscores[2] = Math.random()
     },
-    setBucket4Score (id) {
+    setBucket3Score (id) {
       this.useCases[id].bucketscores[3] = Math.random()
     },
-    setBucket5Score (id) {
+    setBucket4Score (id) {
       this.useCases[id].bucketscores[4] = Math.random()
     },
     updateBucket (id, bucketID) {
@@ -348,5 +351,5 @@ export const useUseCase = defineStore('useCase', {
       }
     },
   },
-  persist: true,
+  // persist: true,
 })
