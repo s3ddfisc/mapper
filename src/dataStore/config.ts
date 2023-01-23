@@ -14,8 +14,8 @@ export const useConfig = defineStore('config', {
     setActiveTab (tab) {
       this.activeTab = tab
     },
-    setUseCaseEditMode () {
-      this.useCaseEditMode = !this.useCaseEditMode
+    setUseCaseEditMode (isActive) {
+      this.useCaseEditMode = isActive
     },
     setUseCaseForm (isActive) {
       this.useCaseForm = isActive
@@ -24,5 +24,5 @@ export const useConfig = defineStore('config', {
       this.editableProcess = id
     },
   },
-  persist: true,
+  // persist: true,
 })

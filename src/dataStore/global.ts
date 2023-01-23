@@ -14,5 +14,5 @@ export const useGlobal = defineStore('global', {
   actions: {
 
   },
-  persist: true,
+  // persist: true,
 })
