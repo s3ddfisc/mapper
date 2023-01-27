@@ -34,7 +34,7 @@
     },
     methods: {
       addUseCase () {
-        this.configStore.setUseCaseForm(true)
+        this.configStore.setUseCaseForm()
       },
       startDrag (event, useCase) {
         this.buckets.forEach(bucket1 => {
