@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mapStores } from 'pinia'
-  import { useUseCase } from '../dataStore/useCase'
+  import { useStrategic } from '../dataStore/strategic'
 
   export default {
     name: 'Categories',
@@ -10,14 +10,14 @@
       }
     },
     computed: {
-      ...mapStores(useUseCase),
+      ...mapStores(useStrategic),
     },
   }
 </script>
 
 <template>
   <v-expansion-panels v-model="activePanel">
-      <v-expansion-panel v-for="category of useCaseStore.categories" :key="category.id">
+      <v-expansion-panel v-for="(category, index) in strategicStore.categories" :key="index">
         <v-expansion-panel-title>
           <v-row no-gutters>
             <v-col cols="4" class="d-flex justify-start">
@@ -34,13 +34,13 @@
             <v-col cols="4"><b>Label</b></v-col>
             <v-col cols="4"><b>Item weight</b></v-col>
           </v-row>
-          <v-row v-for="(value, index) of category.items" :key="index" justify="start">
+          <v-row v-for="(item, index) in category.items" :key="index" justify="start">
             <v-col cols="4">
-              {{ value.label }}
+              {{ item.label }}
             </v-col>
             <v-col cols="4">
               <v-text-field
-                v-model="value.weight"
+                v-model="item.weight"
                 type="number"
                 style="width: 75px"
                 density="compact"
@@ -50,7 +50,7 @@
         </v-expansion-panel-text>
         <v-expansion-panel-text v-else>
           <v-expansion-panels>
-            <v-expansion-panel v-for="category2 of category.categories" :key="category2.id">
+            <v-expansion-panel v-for="(category2, index) in category.categories" :key="index">
               <v-expansion-panel-title>
                 <v-row no-gutters>
                   <v-col cols="4" class="d-flex justify-start">

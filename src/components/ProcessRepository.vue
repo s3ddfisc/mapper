@@ -13,23 +13,9 @@
     computed: {
       ...mapStores(useProcess, useConfig),
     },
-    watch: {
-      activePanel (newValue) {
-        if (newValue == null) {
-          this.configStore.setEditableProcess(-1)
-        }
-      },
-    },
     methods: {
       addProcess () {
         this.processStore.addProcess()
-      },
-      editProcess (id) {
-        if (id === this.configStore.editableProcess) {
-          this.configStore.setEditableProcess(-1)
-        } else {
-          this.configStore.setEditableProcess(id)
-        }
       },
       // deletionTriggered (index) {},
     },
@@ -48,7 +34,6 @@
             <v-col cols="4" class="d-flex justify-start">
               <v-text-field
                 v-model="process.label"
-                :disabled="process.id != configStore.editableProcess || process.id != this.activePanel"
                 density="compact"
                 clearable
               />
@@ -59,69 +44,23 @@
             >
               <v-col cols="6" class="d-flex justify-center" offset="1">ID: {{ process.id }}
               </v-col>
-              <!--<v-col cols="6" class="d-flex justify-start">Optional attribute
-              </v-col>-->
             </v-col>
           </v-row>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
           <br />
-          <v-row justify="end">
-            <v-col cols="2">
-              <v-btn
-                icon
-                variant="outlined"
-                :color="process.id != configStore.editableProcess || process.id != this.activePanel? 'primary' : 'green'"
-                @click="editProcess(process.id)"
-              >
-                <v-icon :icon="process.id != configStore.editableProcess || process.id != this.activePanel? 'mdi-pencil' : 'mdi-check'" />
-                <div v-if="process.id != configStore.editableProcess || process.id != this.activePanel">Edit</div>
-                <div v-else>Save</div>
-              </v-btn>
+          <v-row v-for="(value, index) in process.valueWeights" :key="index" no-gutters>
+            <v-col>
+              {{ value.label }}
             </v-col>
-            <!--<v-col cols="2">
-              <v-btn
-                icon
-                variant="outlined"
-                color="red"
-                @click="deletionTriggered(process.id)"
-              >
-                <v-icon>mdi-trash-can</v-icon>Delete
-              </v-btn>
-            </v-col>-->
-          </v-row>
-          <br />
-          <v-row
-            no-gutters
-          >
-            <v-col cols="3">{{ process.properties[0].label }}</v-col>
-            <v-col cols="3">
+            <v-col>
               <v-text-field
-                v-model="process.properties[0].value"
-                :disabled="process.id != configStore.editableProcess || process.id != this.activePanel"
+                v-model.number="value.weight"
                 type="number"
                 style="width: 75px"
                 density="compact"
+                @click="configStore.updateScores()"
               />
-            </v-col>
-            <v-col cols="3">{{ process.properties[1].label }}</v-col>
-            <v-col cols="3">
-              <v-text-field
-                v-model="process.properties[1].value"
-                :disabled="process.id != configStore.editableProcess || process.id != this.activePanel"
-                density="compact"
-              />
-            </v-col>
-            <v-col cols="3">{{ process.properties[2].label }}</v-col>
-            <v-col cols="3">
-              <v-radio-group
-                v-model="process.properties[2].value"
-                :disabled="process.id != configStore.editableProcess || process.id != this.activePanel"
-                inline
-              >
-                <v-radio label="True" :value=true />
-                <v-radio label="False" :value=false />
-              </v-radio-group>
             </v-col>
           </v-row>
         </v-expansion-panel-text>

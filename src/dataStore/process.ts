@@ -1,47 +1,52 @@
 import { defineStore } from 'pinia'
 
-interface Property {
-  label: string,
-  value: string | number | boolean,
+interface Item {
+  label: string
+  weight: number
+  score?: number
 }
 
 interface Process {
   label: string,
   id: number,
-  properties: Array<Property>
+  valueWeights: Array<Item>
 }
 
 export const useProcess = defineStore('process', {
 
   state: () => {
     return {
+      processIdCounter: 3,
       processes: [
         {
           label: 'process 1',
           id: 0,
-          properties: [
-            { label: 'property 1', value: 10 },
-            { label: 'property 2', value: 'Test' },
-            { label: 'property 3', value: true },
-          ] as Property[],
+          valueWeights: [
+            { label: 'Time', weight: 1 },
+            { label: 'Cost', weight: 1 },
+            { label: 'Quality', weight: 1 },
+            { label: 'Flexibility', weight: 1 },
+          ] as Item[],
         },
         {
           label: 'process 2',
           id: 1,
-          properties: [
-            { label: 'property 1', value: 11 },
-            { label: 'property 2', value: 'Test' },
-            { label: 'property 3', value: false },
-          ] as Property[],
+          valueWeights: [
+            { label: 'Time', weight: 1 },
+            { label: 'Cost', weight: 1 },
+            { label: 'Quality', weight: 1 },
+            { label: 'Flexibility', weight: 1 },
+          ] as Item[],
         },
         {
           label: 'process 3',
           id: 2,
-          properties: [
-            { label: 'property 1', value: 12 },
-            { label: 'property 2', value: 'Test' },
-            { label: 'property 3', value: true },
-          ] as Property[],
+          valueWeights: [
+            { label: 'Time', weight: 1 },
+            { label: 'Cost', weight: 1 },
+            { label: 'Quality', weight: 1 },
+            { label: 'Flexibility', weight: 1 },
+          ] as Item[],
         },
       ] as Process[],
       selectedProcesses: [],
@@ -52,14 +57,22 @@ export const useProcess = defineStore('process', {
     getProcesslabels (state) {
       return state.processes.map(process => process.label)
     },
-    getPropsById (state) {
-      return id => Object.assign(state.processes.filter(process => process.id === id))[0].properties
-    },
     getLabelById (state) {
-      return id => state.processes.filter(process => process.id === id)[0].label
+      return id => {
+        return state.processes.filter(process => process.id === id)[0].label
+      }
     },
     getIdByLabel (state) {
       return label => state.processes.filter(process => process.label === label)[0].id
+    },
+    getProcessExistence (state) {
+      return label => state.processes.map(process => process.label === label).includes(true)
+    },
+    getWeight (state) {
+      return (processId, label) => {
+        return state.processes.filter(process => process.id === processId)[0]
+          .valueWeights.filter(value => value.label === label)[0].weight
+      }
     },
   },
 
@@ -68,13 +81,14 @@ export const useProcess = defineStore('process', {
       this.processes.push({
         label: 'new process',
         id: this.processes.length,
-        properties: {
-          property1: 10,
-          property2: 'Test',
-          property3: true,
-        },
-      })
+        valueWeights: [
+          { label: 'Time', weight: 1 },
+          { label: 'Cost', weight: 1 },
+          { label: 'Quality', weight: 1 },
+          { label: 'Flexibility', weight: 1 },
+        ] as Item[],
+      } as Process)
     },
   },
-  // persist: true,
+  persist: true,
 })

@@ -15,9 +15,7 @@
     },
     methods: {
       edit () {
-        this.useCaseStore.setUseCaseData(this.id)
-        this.configStore.setUseCaseEditMode(true)
-        this.configStore.setUseCaseForm(true)
+        this.configStore.setUseCaseForm(this.id)
       },
     },
   }
@@ -29,21 +27,42 @@
     <v-card-subtitle>{{ this.processStore.getLabelById(this.useCaseStore.getProcessIdById(this.id)) + ' / ID: ' +
       useCaseStore.getIdById(id)
     }}</v-card-subtitle><br />
-    <v-progress-linear v-if="useCaseStore.getUseCaseById(id).bucketID === 0"
+    <v-row>
+      <v-col align="end">
+        <v-progress-circular
+          color="blue"
+          :width=5
+          :model-value="this.useCaseStore.getItemScoreByIdLabel(this.id, 'Strategic goals') * 25 - 25"
+        >
+          S
+        </v-progress-circular>
+      </v-col>
+      <v-col align="center">
+        <v-progress-circular
+        color="red"
+        :width=5
+        :model-value="this.useCaseStore.getItemScoreByIdLabel(this.id, 'Risk minimization') * 25 - 25"
+      >
+          R
+        </v-progress-circular>
+      </v-col>
+      <v-col align="start">
+        <v-progress-circular
+          color="green"
+          :width=5
+          :model-value="this.useCaseStore.getItemScoreByIdLabel(this.id, 'Value potential') * 25 - 25"
+        >
+          V
+        </v-progress-circular>
+      </v-col>
+    </v-row><br />
+    <v-progress-linear
       :model-value="useCaseStore.getScoreById(id)*25 - 25"
       color="secondary"
       bg-color="primary"
       height="20"
     >
       <strong>{{ useCaseStore.getScoreById(id) }}</strong>
-    </v-progress-linear>
-    <v-progress-linear v-else
-      :model-value="useCaseStore.getScoreById(id)"
-      color="primary"
-      bg-color="primary"
-      height="20"
-    >
-      <strong>{{ useCaseStore.getScoreById(id) }}%</strong>
     </v-progress-linear>
   </v-card>
 </template>
