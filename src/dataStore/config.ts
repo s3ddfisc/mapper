@@ -27,6 +27,11 @@ interface CategoryPair {
   importance: number
 }
 
+interface ProcessualDemand {
+  processId: number
+  demand: number
+}
+
 type PairWeighting = [string, string, number]
 
 export const useConfig = defineStore('config', {
@@ -35,14 +40,22 @@ export const useConfig = defineStore('config', {
       activeTab: 'UseCaseManager',
       useCaseEditMode: false,
       useCaseForm: false,
+      valueCaseOverview: false,
       useCaseFormCache: {
         id: Number,
         label: '',
         useCaseState: 0,
         processId: Number,
         processLabel: '',
+        resourceDemand: [],
+        duration: 0,
         categories: [] as Category[],
       },
+      resourceTemplate: [
+        { label: 'Technical', fte: 0 },
+        { label: 'Analytical', fte: 0 },
+        { label: 'Processual', fte: 0 },
+      ],
       categoryTemplate: [
         {
           label: 'Strategic goals',
@@ -108,6 +121,8 @@ export const useConfig = defineStore('config', {
         id: Number,
         label: '',
         processId: Number,
+        resourceDemand: [],
+        duration: 0,
         categories: [] as Category[],
       }
     },
@@ -130,18 +145,23 @@ export const useConfig = defineStore('config', {
         useUseCase().setUseCase(
           this.useCaseFormCache.label,
           useProcess().getIdByLabel(this.useCaseFormCache.processLabel),
-          this.useCaseFormCache.state,
+          this.useCaseFormCache.useCaseState,
           items,
+          this.useCaseFormCache.resourceDemand,
+          this.useCaseFormCache.duration,
           this.useCaseFormCache.id
         )
       } else {
         useUseCase().setUseCase(
           this.useCaseFormCache.label,
           useProcess().getIdByLabel(this.useCaseFormCache.processLabel),
-          this.useCaseFormCache.state,
-          items
+          this.useCaseFormCache.useCaseState,
+          items,
+          this.useCaseFormCache.resourceDemand,
+          this.useCaseFormCache.duration,
         )
       }
+      useConfig().calculateOptimalPortfolio()
       this.resetCache()
     },
     setActiveTab (tab) {
@@ -150,12 +170,15 @@ export const useConfig = defineStore('config', {
     setUseCaseForm (id?: number) {
       if (id === undefined) {
         this.useCaseFormCache.categories = _.cloneDeep(this.categoryTemplate)
+        this.useCaseFormCache.resourceDemand = _.cloneDeep(this.resourceTemplate)
       } else {
         this.useCaseEditMode = true
         this.useCaseFormCache.id = id
-        this.useCaseFormCache.state = useUseCase().getStateById(id)
+        this.useCaseFormCache.useCaseState = useUseCase().getStateById(id)
         this.useCaseFormCache.label = useUseCase().getLabelById(id)
         this.useCaseFormCache.processId = useUseCase().getProcessIdById(id)
+        this.useCaseFormCache.resourceDemand = useUseCase().getResourceDemandById(id)
+        this.useCaseFormCache.duration = useUseCase().getDurationById(id)
         this.useCaseFormCache.processLabel = useProcess().getLabelById(this.useCaseFormCache.processId)
         const categories = _.cloneDeep(this.categoryTemplate)
         categories.forEach(category => {
@@ -255,6 +278,121 @@ export const useConfig = defineStore('config', {
         { label: 'Value potential', score: valueScore }]
       return { score, subScores }
     },
-    persist: true,
+    setAvailableResources () {
+      const inProgress = useUseCase().useCases.filter(useCase => useCase.bucketID > 0 && useCase.bucketID < 4)
+      useStrategic().resources[0].fteAvailable = useStrategic().resources[0].fteTotal
+      useStrategic().resources[1].fteAvailable = useStrategic().resources[1].fteTotal
+      useProcess().processes.forEach(process => {
+        process.resources.fteAvailable = process.resources.fteTotal
+      })
+      inProgress.forEach(useCase => {
+        useStrategic().resources[0].fteAvailable = (useStrategic().resources[0].fteAvailable - useCase.resourceDemand[0].fte).toFixed(2)
+        useStrategic().resources[1].fteAvailable = (useStrategic().resources[1].fteAvailable - useCase.resourceDemand[1].fte).toFixed(2)
+        useProcess().getProcessById(useUseCase().getProcessIdById(useCase.id))[0].resources.fteAvailable =
+          useProcess().getProcessById(useUseCase().getProcessIdById(useCase.id))[0].resources.fteAvailable -
+          useCase.resourceDemand[2].fte
+      })
+      useProcess().processes.forEach(process => {
+        if (useUseCase().useCases.filter(useCase => useCase.bucketID === 1).map(useCase => useCase.processId).includes(process.id)) {
+          useStrategic().resources[0].fteAvailable =
+            (useStrategic().resources[0].fteAvailable - process.resourceDemandCore[0].fte).toFixed(2)
+          useStrategic().resources[1].fteAvailable =
+            (useStrategic().resources[1].fteAvailable - process.resourceDemandCore[1].fte).toFixed(2)
+          process.resources.fteAvailable = (process.resources.fteAvailable - process.resourceDemandCore[2].fte).toFixed(2)
+        }
+      })
+    },
+    calculateOptimalPortfolio () {
+      this.setAvailableResources()
+      const backlog = useUseCase().useCases.filter(useCase => useCase.bucketID === 0 && useCase.state > 0)
+      const portfolioOptions = theArray => theArray.reduce((subsets, value) => subsets.concat(
+        subsets.map(set => [value, ...set])),
+      [[]]
+      )
+      const manageableOptions = []
+      portfolioOptions(backlog.map(useCase => useCase.id)).forEach(option => {
+        let technicalDemand = 0
+        let analyticalDemand = 0
+        const processualDemands = [] as ProcessualDemand[]
+        option.forEach(id => {
+          if (!processualDemands.map(process => process.processId).includes(useUseCase().getProcessIdById(id))) {
+            processualDemands.push({ processId: useUseCase().getProcessIdById(id), demand: 0 } as ProcessualDemand)
+            if (useProcess().getCoreStatusById(useUseCase().getUseCaseById(id).processId)) {
+              technicalDemand = technicalDemand +
+                useProcess().getProcessById(useUseCase().getUseCaseById(id).processId)[0].resourceDemandCore[0].fte
+              analyticalDemand = analyticalDemand +
+                useProcess().getProcessById(useUseCase().getUseCaseById(id).processId)[0].resourceDemandCore[1].fte
+              processualDemands.filter(process => process.processId === useUseCase().getProcessIdById(id))[0]
+                .demand = useProcess().getProcessById(useUseCase().getUseCaseById(id).processId)[0].resourceDemandCore[2].fte
+            }
+          }
+          technicalDemand = technicalDemand + useUseCase().getUseCaseById(id).resourceDemand[0].fte
+          analyticalDemand = analyticalDemand + useUseCase().getUseCaseById(id).resourceDemand[1].fte
+          processualDemands.filter(process => process.processId === useUseCase().getProcessIdById(id))[0]
+            .demand = processualDemands.filter(process => process.processId === useUseCase().getProcessIdById(id))[0]
+              .demand + useUseCase().getUseCaseById(id).resourceDemand[2].fte
+        })
+        if (technicalDemand <= useStrategic().resources[0].fteAvailable && analyticalDemand <= useStrategic().resources[1].fteAvailable) {
+          let manageable = true
+          processualDemands.forEach(process => {
+            if (process.demand > useProcess().getProcessById(process.processId)[0].resources.fteAvailable) {
+              manageable = false
+            }
+          })
+          if (manageable) {
+            manageableOptions.push(option)
+          }
+        }
+      })
+      let favoriteOption = { option: [], portfolioScore: 0 }
+      manageableOptions.forEach(option => {
+        let portfolioScore = 0
+        option.forEach(useCase => {
+          let effort = useUseCase().getUseCaseById(useCase).resourceDemand.map(demand => demand.fte)
+            .reduce(function (a, b) {
+              return a + b
+            }) * useUseCase().getUseCaseById(useCase).duration
+          if (useProcess().getCoreStatusById(useUseCase().getUseCaseById(useCase).processId)) {
+            let processCounter = 0
+            option.forEach(useCase2 => {
+              if (useUseCase().getProcessIdById(useCase) === useUseCase().getProcessIdById(useCase2)) {
+                processCounter++
+              }
+            })
+            effort = effort + useProcess().getProcessById(useUseCase().getProcessIdById(useCase))[0]
+              .resourceDemandCore.map(demand => demand.fte).reduce(function (a, b) {
+                return a + b
+              }) * useProcess().getProcessById(useUseCase().getProcessIdById(useCase))[0].duration / processCounter
+          }
+          portfolioScore = portfolioScore + useUseCase().getScoreById(useCase) / effort
+        })
+        if (portfolioScore > favoriteOption.portfolioScore) {
+          favoriteOption = { option, portfolioScore }
+        }
+      })
+      useUseCase().useCases.forEach(useCase => {
+        useCase.optimalPortfolio = false
+      })
+      favoriteOption.option.forEach(useCase => {
+        useUseCase().getUseCaseById(useCase).optimalPortfolio = true
+      })
+    },
+    validateState () {
+      if (this.useCaseFormCache.useCaseState !== 0) {
+        if (this.useCaseFormCache.processLabel !== '') {
+          useProcess().processes.filter(process => process.label === this.useCaseFormCache.processLabel)[0].coreDevelopmentCompleted
+            ? this.useCaseFormCache.useCaseState = 2 : this.useCaseFormCache.useCaseState = 1
+        } else this.useCaseFormCache.useCaseState = 1
+      }
+    },
+    implementPortfolio () {
+      useUseCase().useCases.forEach(useCase => {
+        if (useCase.optimalPortfolio === true) {
+          useCase.optimalPortfolio = false
+          useCase.state === 1 ? useCase.bucketID = 1 : useCase.bucketID = 2
+        }
+      })
+    },
+    // persist: true,
   },
 })

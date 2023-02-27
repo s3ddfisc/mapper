@@ -31,12 +31,19 @@
           5: 'Very positive',
         },
         tickLabelsState: {
-          0: 'I0',
-          1: 'I1',
-          2: 'I2',
-          3: 'A3',
-          4: 'V4',
+          0: 'S0',
+          1: 'S1',
+          2: 'S2',
+          3: 'S3',
+          4: 'S4',
         },
+        tickLabelStateDescriptions: [
+          'Initiated',
+          'Estimated',
+          'As-is measureable',
+          'To-be measureable',
+          'Value measurable',
+        ],
       }
     },
     computed: {
@@ -68,10 +75,10 @@
   <v-dialog persistent max-width="800px">
     <v-card min-width="100px">
       <v-card-title v-if="!configStore.useCaseEditMode">
-        Add Use Case
+        Add Value Case
       </v-card-title>
       <v-card-title v-else>
-        Edit Use Case
+        Edit Value Case
       </v-card-title>
       <v-card-text>
         <v-form>
@@ -83,64 +90,178 @@
               required
               density="comfortable"
             />
-            <v-text-field v-model="configStore.useCaseFormCache.label" label="Use Case" density="comfortable" clearable />
-            <v-slider
-              v-model="this.configStore.useCaseFormCache.useCaseState"
-              :ticks="tickLabelsState"
-              :max="4"
-              step="1"
-              show-ticks="always"
-              tick-size="4"
-            ></v-slider>
-            <v-expansion-panels>
-              <v-expansion-panel v-for="(category, index) in configStore.useCaseFormCache.categories" :key="index">
-                <v-expansion-panel-title>{{ category.label }}</v-expansion-panel-title>
-                <v-expansion-panel-text v-if="category.items != undefined">
-                  <v-card
-                    v-for="(item, index) in category.items"
-                    :key="index"
-                  >
-                    <v-card-title>
-                      {{ item.label }}
-                    </v-card-title>
-                    <v-card-text>
-                      <v-slider v-if="category.label != 'Value potential'"
-                        v-model="item.score"
-                        :ticks="tickLabelsLowHigh"
-                        :color="this.color(item.score)"
-                        :min="1"
-                        :max="5"
-                        step="1"
-                        show-ticks="always"
-                        tick-size="4"
+            <v-text-field v-model="configStore.useCaseFormCache.label" label="Value Case Label" density="comfortable" clearable>
+              <v-tooltip
+                open-delay=1000
+                content-class="custom-tooltip"
+                activator="parent"
+                location="top left"
+              >
+                Define a label for the value case.
+              </v-tooltip>
+            </v-text-field>
+            <v-card>
+              <v-card-title>
+                Value Case State
+                <v-tooltip
+                  open-delay=1000
+                  content-class="custom-tooltip"
+                  activator="parent"
+                  location="top left"
+                >
+                  Tracking of the progress of the value case.
+                </v-tooltip>
+              </v-card-title>
+              <br>
+              <v-card-text>
+                <v-slider
+                  v-model="this.configStore.useCaseFormCache.useCaseState"
+                  :ticks="tickLabelsState"
+                  :max="4"
+                  step="1"
+                  :readonly="this.configStore.useCaseFormCache.id ? false :
+                  this.useCaseStore.getBucketById(this.configStore.useCaseFormCache.id) === 0 ? false : true"
+                  show-ticks="always"
+                  tick-size="4"
+                  thumb-label
+                  @click="configStore.validateState()"
+                >
+                  <template v-slot:thumb-label="{ modelValue }">
+                    {{ tickLabelStateDescriptions[modelValue] }}
+                  </template>
+                </v-slider>
+              </v-card-text>
+            </v-card>
+            <v-card>
+              <v-card-title>
+                Required Resources (excl. Core Development)
+                <v-tooltip
+                  open-delay=1000
+                  content-class="custom-tooltip"
+                  activator="parent"
+                  location="top left"
+                >
+                  Required resources for the value case specific extension of the core application
+                </v-tooltip>
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col><b>Duration (in weeks)</b></v-col>
+                  <v-col>
+                    <v-text-field
+                      v-model.number="this.configStore.useCaseFormCache.duration"
+                      type="number"
+                      step="1"
+                      style="width: 75px"
+                      density="compact"
+                    />
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col><b>Resource type</b></v-col>
+                  <v-col><b>Required (in FTE)</b></v-col>
+                </v-row>
+                <v-row v-for="(type, index) in this.configStore.useCaseFormCache.resourceDemand" :key="index">
+                  <v-col>
+                    <b>{{ type.label }}</b>
+                    <v-tooltip
+                      open-delay=1000
+                      content-class="custom-tooltip"
+                      activator="parent"
+                      location="top left"
+                    >
+                      <span
+                        v-if="type.label !== 'Processual'"
+                        style="white-space: pre;"
+                        v-html="this.strategicStore.getResourceByLabel(type.label).description"
                       />
-                      <v-slider v-else
-                        v-model="item.score"
-                        :ticks="tickLabelsImpact"
-                        :color="this.color(item.score)"
-                        :min="1"
-                        :max="5"
-                        step="1"
-                        show-ticks="always"
-                        tick-size="4"
-                      />
-                    </v-card-text>
-                  </v-card>
-                </v-expansion-panel-text>
-                <v-expansion-panel-text v-else>
+                      <div v-else>
+                        <p>E.g., process experts from the operational team of specific business process.</p>
+                      </div>
+                    </v-tooltip>
+                  </v-col>
+                  <v-col>
+                    <v-text-field
+                      v-model.number=type.fte
+                      type="number"
+                      step="0.1"
+                      style="width: 75px"
+                      density="compact"
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+            <v-card>
+              <v-card-title>Value Case Assessment
+                <v-tooltip
+                  open-delay=1000
+                  content-class="custom-tooltip"
+                  activator="parent"
+                  location="top left"
+                >
+                  Assess the value case against predefined dimensions and criteria.
+                </v-tooltip>
+              </v-card-title>
+                <v-card-text>
                   <v-expansion-panels>
-                    <v-expansion-panel v-for="(subcategory, index) in category.categories" :key="index">
-                      <v-expansion-panel-title>{{ subcategory.label }}</v-expansion-panel-title>
-                      <v-expansion-panel-text>
+                    <v-expansion-panel v-for="(category, index) in configStore.useCaseFormCache.categories" :key="index">
+                      <v-expansion-panel-title>
+                        {{ category.label }}
+                        <v-tooltip
+                          open-delay=1000
+                          content-class="custom-tooltip"
+                          activator="parent"
+                          location="top left"
+                        >
+                          <p v-if="category.label==='Strategic goals'">
+                            Assess the alignment of the value case to predefined strategic goals.
+                          </p>
+                          <p v-if="category.label==='Risk minimization'">
+                            Assess the criticality of different obstacles relevant to the value case.
+                          </p>
+                          <p v-if="category.label==='Value potential'">
+                            Assess the improvement potential for the business process with implementing the value case.
+                          </p>
+                        </v-tooltip>
+                      </v-expansion-panel-title>
+                      <v-expansion-panel-text v-if="category.items != undefined">
                         <v-card
-                            v-for="(item, index) in subcategory.items"
-                            :key="index"
-                          >
+                          v-for="(item, index) in category.items"
+                          :key="index"
+                        >
                           <v-card-title>
                             {{ item.label }}
+                            <v-tooltip
+                              open-delay=1000
+                              content-class="custom-tooltip"
+                              activator="parent"
+                              location="top left"
+                            >
+                              <div v-if="item.label==='Time'">
+                                The potential for cycle time improvement, e.g., the time to handle one process instance from start to end.
+                              </div>
+                              <div v-if="item.label==='Cost'">
+                                The potential for financial improvement, e.g., cost reduction, turnover increase, yield increase,
+                                or revenue increase.
+                              </div>
+                              <div v-if="item.label==='Quality'">
+                                <p>The potential for internal (process participant's perspective) or external (client's perspective)
+                                  quality improvement,</p>
+                                <p>e.g., the client's satisfaction as often managed via service level agreements (external) or
+                                  the level of control (internal).</p>
+                                </div>
+                              <div v-if="item.label==='Flexibility'">
+                                <p>The potential for flexibility improvement (the ability to react to changes),</p>
+                                <p>e.g., the ability of resources to execute different tasks, to handle various cases and
+                                  changing workloads, to change the structure and allocation rules,</p>
+                                <p>or the organization’s ability to change the structure and responsiveness of the business process
+                                  to wishes of the market and business partners.</p>
+                              </div>
+                            </v-tooltip>
                           </v-card-title>
                           <v-card-text>
-                            <v-slider v-if="subcategory.label != 'Challenges and issues'"
+                            <v-slider v-if="category.label != 'Value potential'"
                               v-model="item.score"
                               :ticks="tickLabelsLowHigh"
                               :color="this.color(item.score)"
@@ -152,7 +273,7 @@
                             />
                             <v-slider v-else
                               v-model="item.score"
-                              :ticks="tickLabelsHighLow"
+                              :ticks="tickLabelsImpact"
                               :color="this.color(item.score)"
                               :min="1"
                               :max="5"
@@ -163,11 +284,73 @@
                           </v-card-text>
                         </v-card>
                       </v-expansion-panel-text>
+                      <v-expansion-panel-text v-else>
+                        <v-expansion-panels>
+                          <v-expansion-panel
+                            v-for="(subcategory, index) in category.categories"
+                            :key="index"
+                          >
+                            <v-expansion-panel-title>
+                              {{ subcategory.label }}
+                              <v-tooltip
+                                open-delay=1000
+                                content-class="custom-tooltip"
+                                activator="parent"
+                                location="top left"
+                              >
+                                <span
+                                  style="white-space: pre;"
+                                  v-html="strategicStore.getDescriptionByLabel(subcategory.label)"
+                                />
+                              </v-tooltip>
+                            </v-expansion-panel-title>
+                            <v-expansion-panel-text>
+                              <v-card
+                                  v-for="(item, index) in subcategory.items"
+                                  :key="index"
+                                >
+                                <v-card-title>
+                                  {{ item.label }}
+                                  <v-tooltip
+                                    open-delay=1000
+                                    content-class="custom-tooltip"
+                                    activator="parent"
+                                    location="top left"
+                                  >
+                                    <span style="white-space: pre;" v-html="strategicStore.getDescriptionByLabel(item.label)" />
+                                  </v-tooltip>
+                                </v-card-title>
+                                <v-card-text>
+                                  <v-slider v-if="subcategory.label != 'Challenges and issues'"
+                                    v-model="item.score"
+                                    :ticks="tickLabelsLowHigh"
+                                    :color="this.color(item.score)"
+                                    :min="1"
+                                    :max="5"
+                                    step="1"
+                                    show-ticks="always"
+                                    tick-size="4"
+                                  />
+                                  <v-slider v-else
+                                    v-model="item.score"
+                                    :ticks="tickLabelsHighLow"
+                                    :color="this.color(item.score)"
+                                    :min="1"
+                                    :max="5"
+                                    step="1"
+                                    show-ticks="always"
+                                    tick-size="4"
+                                  />
+                                </v-card-text>
+                              </v-card>
+                            </v-expansion-panel-text>
+                          </v-expansion-panel>
+                        </v-expansion-panels>
+                      </v-expansion-panel-text>
                     </v-expansion-panel>
                   </v-expansion-panels>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
+                </v-card-text>
+            </v-card>
           </v-sheet>
         </v-form>
       </v-card-text>

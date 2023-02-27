@@ -18,10 +18,39 @@
     },
     data: () => ({
       navitems: [
-        { id: 1, icon: 'mdi-map-marker-radius', title: 'Strategic Input', value: 'StrategicInput' },
-        { id: 2, icon: 'mdi-folder', title: 'Process Repository', value: 'ProcessRepository' },
-        { id: 3, icon: 'mdi-view-dashboard', title: 'Use Case Manager', value: 'UseCaseManager', active: true },
-        { id: 4, icon: 'mdi-star-circle', title: 'Success Monitor', value: 'SuccessMonitor' },
+        {
+          id: 1,
+          icon: 'mdi-map-marker-radius',
+          title: 'Strategic Input',
+          value: 'StrategicInput',
+          description:
+            'Define the strategic input relevant for the value case assessment, \n' +
+            'i.e., resources, category weighting, and strategic goals.',
+        },
+        {
+          id: 2,
+          icon: 'mdi-folder',
+          title: 'Process Repository',
+          value: 'ProcessRepository',
+          description: 'Add processes that are in focus of your process mining operations.\n' +
+            'Define process-specific goals and resources.',
+        },
+        {
+          id: 3,
+          icon: 'mdi-view-dashboard',
+          title: 'Use Case Manager',
+          value: 'UseCaseManager',
+          description: 'Define the value case portfolio to be implemented.\n' +
+            'Track the progress of the value case portfolio.',
+          active: true,
+        },
+        {
+          id: 4,
+          icon: 'mdi-star-circle',
+          title: 'Success Monitor',
+          value: 'SuccessMonitor',
+          description: 'Track the value creation enabled by process mining operations.',
+        },
       ],
     }),
     computed: {
@@ -33,6 +62,9 @@
           navitem.active = false
         })
         el.active = true
+        if (el.value === 'UseCaseManager') {
+          this.configStore.calculateOptimalPortfolio()
+        }
         this.configStore.setEditableProcess(-1)
         this.configStore.setActiveTab(el.value)
       },

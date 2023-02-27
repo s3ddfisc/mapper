@@ -12,7 +12,10 @@ export interface UseCase {
   processId: number,
   bucketID: number,
   state: number,
-  bucketscores: Array<number>,
+  score: number,
+  optimalPortfolio: boolean,
+  resourceDemand: [],
+  duration: number,
   items: Array<Attribute>,
 }
 
@@ -21,7 +24,6 @@ export const useUseCase = defineStore('useCase', {
     return {
       useCaseIdCounter: 0,
       useCases: [] as UseCase[],
-      resourceDemand: [],
     }
   },
 
@@ -50,20 +52,16 @@ export const useUseCase = defineStore('useCase', {
       return useCaseId => state.useCases[useCaseId].bucketID
     },
     getScoreById: state => {
-      return useCaseId => Math.round(100 * state.useCases[useCaseId].bucketscores[0]) / 100
-      /* {
-        if (state.useCases[useCaseId].bucketID === 0) {
-          return Math.round(100 * state.useCases[useCaseId].bucketscores[0]) / 100
-        } else if (state.useCases[useCaseId].bucketID === 1) {
-          return Math.round(100 * state.useCases[useCaseId].bucketscores[1])
-        } else if (state.useCases[useCaseId].bucketID === 2) {
-          return Math.round(100 * state.useCases[useCaseId].bucketscores[2])
-        } else if (state.useCases[useCaseId].bucketID === 3) {
-          return Math.round(100 * state.useCases[useCaseId].bucketscores[3])
-        } else if (state.useCases[useCaseId].bucketID === 4) {
-          return Math.round(100 * state.useCases[useCaseId].bucketscores[4])
-        }
-      } */
+      return useCaseId => Math.round(100 * state.useCases[useCaseId].score) / 100
+    },
+    getResourceDemandById: state => {
+      return useCaseId => state.useCases[useCaseId].resourceDemand
+    },
+    getDurationById: state => {
+      return useCaseId => state.useCases[useCaseId].duration
+    },
+    getOptimalPortfolioById: state => {
+      return useCaseId => state.useCases[useCaseId].optimalPortfolio
     },
     getUseCasesInBucket: state => {
       return bucketID => state.useCases.filter(useCase => useCase.bucketID === bucketID)
@@ -71,32 +69,36 @@ export const useUseCase = defineStore('useCase', {
   },
 
   actions: {
-    setUseCase (label: string, processId: number, state: number, items: Array<Attribute>, id?: number) {
+    setUseCase (label: string, processId: number, state: number, items: Array<Attribute>, resourceDemand: [], duration, id?: number) {
       if (id === undefined) {
         this.useCases.push({
           id: this.useCaseIdCounter,
           label,
           bucketID: 0,
-          state: 0,
-          bucketscores: Array(5),
+          state,
+          score: 0,
+          optimalPortfolio: false,
+          resourceDemand,
+          duration,
           processId,
           items,
         } as UseCase)
-        this.setScores(this.useCaseIdCounter)
         this.useCaseIdCounter++
       } else {
         this.getUseCaseById(id).label = label
         this.getUseCaseById(id).processId = processId
         this.getUseCaseById(id).items = items
         this.getUseCaseById(id).state = state
-        this.setScores(id)
+        this.getUseCaseById(id).resourceDemand = resourceDemand
+        this.getUseCaseById(id).duration = duration
       }
+      this.setScores(id || this.useCaseIdCounter - 1)
     },
     setScores (id) {
-      this.getUseCaseById(id).bucketscores[0] = useConfig().calculateRating(this.getUseCaseById(id).items, this.getProcessIdById(id)).score
+      this.getUseCaseById(id).score = useConfig().calculateRating(this.getUseCaseById(id).items, this.getProcessIdById(id)).score
       useConfig().calculateRating(this.getUseCaseById(id).items, this.getProcessIdById(id)).subScores.forEach(obj => {
         try {
-          console.log(this.getUseCaseById(id).items.filter(item => item.label === obj.label)[0].score = obj.score)
+          this.getUseCaseById(id).items.filter(item => item.label === obj.label)[0].score = obj.score
         } catch (error) {
           Array.prototype.push.apply(
             this.getUseCaseById(id).items,
@@ -106,7 +108,20 @@ export const useUseCase = defineStore('useCase', {
     },
     updateBucket (id, bucketID) {
       this.useCases[id].bucketID = bucketID
+      this.updateState(id, bucketID)
+    },
+    updateState (id, bucketId) {
+      if (bucketId > 0 && bucketId < 5) {
+        this.getUseCaseById(id).state = bucketId
+      } else if (this.getUseCaseById(id).state > 2) {
+        this.getUseCaseById(id).state = 2
+      }
+    },
+    deleteGoal (label) {
+      this.useCases.forEach(useCase => {
+        useCase.items.splice(useCase.items.map(item => item.label).indexOf(label), 1)
+      })
     },
   },
-  persist: true,
+  // persist: true,
 })

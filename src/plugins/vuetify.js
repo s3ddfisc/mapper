@@ -29,10 +29,10 @@ export default createVuetify({
     VBtn: {
       color: 'primary',
       height: 44,
-      minWidth: 190,
+      minWidth: 100,
     },
     VBtnAlt: {
-      color: 'primary',
+      color: 'dark',
       height: 48,
       minWidth: 190,
       variant: 'outlined',

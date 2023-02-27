@@ -29,22 +29,20 @@
 <template>
   <v-card>
     <v-card>
-      <v-row v-for="(category, index) in strategicStore.categories" :key="index">
-        <v-col align="center">
-          <h3>{{category.label}}</h3>
-        </v-col>
-        <v-col align="center">
-          <h3>{{'Weight: ' + Math.round(category.weight*100) / 100 }}</h3>
-        </v-col>
-      </v-row>
-    </v-card>
-    <v-card>
       <v-card-title>Assess the relative importance of each category pair</v-card-title>
       <v-card-text>
         <div v-for="(value, index) in strategicStore.getGlobalCategoryPairs" :key="index">
           <v-row>
             <v-col>
               <label>{{value.category1.label}}</label>
+              <v-tooltip
+                  open-delay=1000
+                  content-class="custom-tooltip"
+                  activator="parent"
+                  location="top left"
+                >
+                <span style="white-space: pre;" v-html="value.category1.description" />
+                </v-tooltip>
             </v-col>
             <v-col cols="9">
               <v-slider
@@ -59,6 +57,14 @@
             </v-col>
             <v-col>
               <label>{{value.category2.label}}</label>
+              <v-tooltip
+                  open-delay=1000
+                  content-class="custom-tooltip"
+                  activator="parent"
+                  location="top left"
+                >
+                <span style="white-space: pre;" v-html="value.category2.description" />
+                </v-tooltip>
             </v-col>
           </v-row>
         </div>
