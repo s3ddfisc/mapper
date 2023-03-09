@@ -263,5 +263,5 @@ export const useStrategic = defineStore('strategic', {
       useConfig().updateScores()
     },
   },
-  // persist: true,
+  persist: true,
 })

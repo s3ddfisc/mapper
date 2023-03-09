@@ -38,7 +38,7 @@
         {
           id: 3,
           icon: 'mdi-view-dashboard',
-          title: 'Use Case Manager',
+          title: 'Value Case Manager',
           value: 'UseCaseManager',
           description: 'Define the value case portfolio to be implemented.\n' +
             'Track the progress of the value case portfolio.',

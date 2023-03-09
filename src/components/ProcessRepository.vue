@@ -29,13 +29,14 @@
     </v-app-bar>
     <v-expansion-panels v-model="activePanel">
       <v-expansion-panel v-for="process of processStore.processes" :key="process.id">
-        <v-expansion-panel-title>
+        <v-expansion-panel-title @keyup.space.prevent>
           <v-row no-gutters>
             <v-col cols="4" class="d-flex justify-start">
               <v-text-field
                 v-model="process.label"
                 density="compact"
                 clearable
+                @click.native.stop
               />
             </v-col>
             <v-col

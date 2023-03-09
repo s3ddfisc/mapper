@@ -116,12 +116,8 @@
       onDrop (event, bucketID) {
         this.useCaseStore.updateBucket(event.dataTransfer.getData('useCaseID'), bucketID)
         if (bucketID === 2) {
-          console.log(this.processStore.getProcessById(this.useCaseStore
-            .getProcessIdById(event.dataTransfer.getData('useCaseID')))[0].coreDevelopmentCompleted)
           this.processStore.getProcessById(this.useCaseStore
             .getProcessIdById(event.dataTransfer.getData('useCaseID')))[0].coreDevelopmentCompleted = true
-          console.log(this.processStore.getProcessById(this.useCaseStore
-            .getProcessIdById(event.dataTransfer.getData('useCaseID')))[0].coreDevelopmentCompleted)
           this.processStore.updateCoreDevelopment(this.useCaseStore.getProcessIdById(event.dataTransfer.getData('useCaseID')))
         }
         this.configStore.calculateOptimalPortfolio()
