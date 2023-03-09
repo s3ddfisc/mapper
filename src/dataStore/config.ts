@@ -393,6 +393,6 @@ export const useConfig = defineStore('config', {
         }
       })
     },
-    // persist: true,
+    persist: true,
   },
 })

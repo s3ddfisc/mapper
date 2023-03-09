@@ -123,5 +123,5 @@ export const useUseCase = defineStore('useCase', {
       })
     },
   },
-  // persist: true,
+  persist: true,
 })

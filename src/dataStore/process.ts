@@ -150,5 +150,5 @@ export const useProcess = defineStore('process', {
       }
     },
   },
-  // persist: true,
+  persist: true,
 })
