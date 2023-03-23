@@ -20,9 +20,10 @@
       <v-row justify="space-between" style="height: 55px">
           <v-col align="start">
             <v-text-field
-                v-model="value.label"
+                :value="value.label"
                 density="compact"
                 clearable
+                @input="configStore.updateGoals(index, value.label, $event.target.value)"
               />
           </v-col>
           <v-col align ="start">

@@ -393,6 +393,13 @@ export const useConfig = defineStore('config', {
         }
       })
     },
+    updateGoals (id, oldValue, newValue) {
+      useStrategic().categories[0].items[id].label = newValue
+      this.categoryTemplate[0].items[id].label = newValue
+      useUseCase().useCases.forEach(useCase => {
+        useCase.items.filter(item => item.label === oldValue)[0].label = newValue
+      })
+    },
     persist: true,
   },
 })
