@@ -155,6 +155,26 @@
                       style="width: 75px"
                       density="compact"
                     />
+                    <v-row>
+                      <v-col><b>Start</b></v-col>
+                      <v-col><b>End</b></v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col>
+                        <v-text-field
+                          v-model="this.configStore.useCaseFormCache.startDate"
+                          type="date"
+                          density="compact"
+                        />
+                      </v-col>
+                      <v-col>
+                        <v-text-field
+                          v-model="this.configStore.useCaseFormCache.endDate"
+                          type="date"
+                          density="compact"
+                        />
+                      </v-col>
+                    </v-row>
                   </v-col>
                 </v-row>
                 <v-row>
@@ -350,6 +370,38 @@
                     </v-expansion-panel>
                   </v-expansion-panels>
                 </v-card-text>
+            </v-card>
+            <v-card>
+              <v-checkbox v-model="configStore.useCaseFormCache.monetary">
+                <template v-slot:label>
+                  <div>Monetary benefits return from the implementation</div>
+                </template>
+              </v-checkbox>
+              <v-expand-y-transition>
+                <v-card v-if="configStore.useCaseFormCache.monetary">
+                  <v-row>
+                    <v-col>
+                      Amount
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model.number=configStore.useCaseFormCache.monetaryValue
+                        type="number"
+                        step="1000"
+                        style="width: 120px"
+                        density="compact"
+                      />
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-checkbox v-model="configStore.useCaseFormCache.valueRecurring">
+                      <template v-slot:label>
+                        <div>Monetary benefits return on a monthly base</div>
+                      </template>
+                    </v-checkbox>
+                  </v-row>
+                </v-card>
+              </v-expand-y-transition>
             </v-card>
           </v-sheet>
         </v-form>

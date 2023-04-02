@@ -26,6 +26,7 @@
     "mitt": "^3.0.0",
     "pinia": "^2.0.28",
     "pinia-plugin-persistedstate": "^3.0.2",
+    "plotly.js-dist": "^2.20.0",
     "roboto-fontface": "*",
     "typescript": "^4.9.4",
     "usemodal-vue3": "^0.3.7",

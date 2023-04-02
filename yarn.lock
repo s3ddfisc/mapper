@@ -2277,6 +2277,11 @@ pkg-dir@^4.1.0:
   dependencies:
     find-up "^4.0.0"
 
+plotly.js-dist@^2.20.0:
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/plotly.js-dist/-/plotly.js-dist-2.20.0.tgz#44bb31c0ba6b73452748eae72654c192e67bf561"
+  integrity sha512-xhlzoC9CiCwOgXzuahWrMVhottoSokhPwmUGzWF8zGmSSdBvCOz3e3uJ5OtMirmiF2cEt+VH8X1U00OhbQ7M5Q==
+
 popper.js@^1.16.1:
   version "1.16.1"
   resolved "https://registry.npmjs.org/popper.js/-/popper.js-1.16.1.tgz"

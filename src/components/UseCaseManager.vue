@@ -3,14 +3,14 @@
   import { useConfig } from '../dataStore/config'
   import { useProcess } from '../dataStore/process'
   import { useUseCase } from '../dataStore/useCase'
-  import ValueCaseOverview from './ValueCaseOverview.vue'
+  import BacklogOverview from './BacklogOverview.vue'
   import UseCaseCard from './UseCaseCard.vue'
 
   export default {
     name: 'UseCaseManager',
     components: {
       UseCaseCard,
-      ValueCaseOverview,
+      BacklogOverview,
     },
     data: () => ({
       buckets: [
@@ -200,7 +200,7 @@
                   activator="parent"
                   width="auto"
                 >
-                  <ValueCaseOverview min-width="1000px" min-height="800px" />
+                  <BacklogOverview min-width="1000px" min-height="800px" />
                 </v-dialog>
               </v-btn>
             </v-col>

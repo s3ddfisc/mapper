@@ -49,6 +49,11 @@ export const useConfig = defineStore('config', {
         processLabel: '',
         resourceDemand: [],
         duration: 0,
+        startDate: null,
+        endDate: null,
+        monetary: false,
+        monetaryValue: 0,
+        valueRecurring: false,
         categories: [] as Category[],
       },
       resourceTemplate: [
@@ -116,13 +121,18 @@ export const useConfig = defineStore('config', {
       this.useCaseEditMode = false
       this.useCaseForm = false
       this.processLabel = ''
-      this.useCaseState = 0
       this.useCaseFormCache = {
         id: Number,
         label: '',
+        useCaseState: 0,
         processId: Number,
         resourceDemand: [],
         duration: 0,
+        startDate: null,
+        endDate: null,
+        monetary: false,
+        monetaryValue: 0,
+        valueRecurring: false,
         categories: [] as Category[],
       }
     },
@@ -149,6 +159,11 @@ export const useConfig = defineStore('config', {
           items,
           this.useCaseFormCache.resourceDemand,
           this.useCaseFormCache.duration,
+          this.useCaseFormCache.startDate,
+          this.useCaseFormCache.endDate,
+          this.useCaseFormCache.monetary,
+          this.useCaseFormCache.monetaryValue,
+          this.useCaseFormCache.valueRecurring,
           this.useCaseFormCache.id
         )
       } else {
@@ -159,6 +174,11 @@ export const useConfig = defineStore('config', {
           items,
           this.useCaseFormCache.resourceDemand,
           this.useCaseFormCache.duration,
+          this.useCaseFormCache.startDate,
+          this.useCaseFormCache.endDate,
+          this.useCaseFormCache.monetary,
+          this.useCaseFormCache.monetaryValue,
+          this.useCaseFormCache.valueRecurring
         )
       }
       useConfig().calculateOptimalPortfolio()
@@ -179,6 +199,8 @@ export const useConfig = defineStore('config', {
         this.useCaseFormCache.processId = useUseCase().getProcessIdById(id)
         this.useCaseFormCache.resourceDemand = useUseCase().getResourceDemandById(id)
         this.useCaseFormCache.duration = useUseCase().getDurationById(id)
+        this.useCaseFormCache.startDate = useUseCase().getStartDateById(id)
+        this.useCaseFormCache.endDate = useUseCase().getEndDateById(id)
         this.useCaseFormCache.processLabel = useProcess().getLabelById(this.useCaseFormCache.processId)
         const categories = _.cloneDeep(this.categoryTemplate)
         categories.forEach(category => {
