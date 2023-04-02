@@ -16,6 +16,11 @@ export interface UseCase {
   optimalPortfolio: boolean,
   resourceDemand: [],
   duration: number,
+  startDate: Date,
+  endDate: Date,
+  monetary: boolean,
+  monetaryValue: number,
+  valueRecurring: boolean,
   items: Array<Attribute>,
 }
 
@@ -60,6 +65,12 @@ export const useUseCase = defineStore('useCase', {
     getDurationById: state => {
       return useCaseId => state.useCases[useCaseId].duration
     },
+    getStartDateById: state => {
+      return useCaseId => state.useCases[useCaseId].startDate
+    },
+    getEndDateById: state => {
+      return useCaseId => state.useCases[useCaseId].endDate
+    },
     getOptimalPortfolioById: state => {
       return useCaseId => state.useCases[useCaseId].optimalPortfolio
     },
@@ -69,7 +80,8 @@ export const useUseCase = defineStore('useCase', {
   },
 
   actions: {
-    setUseCase (label: string, processId: number, state: number, items: Array<Attribute>, resourceDemand: [], duration, id?: number) {
+    setUseCase (label: string, processId: number, state: number, items: Array<Attribute>,
+      resourceDemand: [], duration, startDate, endDate, monetary, monetaryValue, valueRecurring, id?: number) {
       if (id === undefined) {
         this.useCases.push({
           id: this.useCaseIdCounter,
@@ -80,6 +92,11 @@ export const useUseCase = defineStore('useCase', {
           optimalPortfolio: false,
           resourceDemand,
           duration,
+          startDate,
+          endDate,
+          monetary,
+          monetaryValue,
+          valueRecurring,
           processId,
           items,
         } as UseCase)
@@ -91,6 +108,11 @@ export const useUseCase = defineStore('useCase', {
         this.getUseCaseById(id).state = state
         this.getUseCaseById(id).resourceDemand = resourceDemand
         this.getUseCaseById(id).duration = duration
+        this.getUseCaseById(id).startDate = startDate
+        this.getUseCaseById(id).endDate = endDate
+        this.getUseCaseById(id).monetary = monetary
+        this.getUseCaseById(id).monetaryValue = monetaryValue
+        this.getUseCaseById(id).valueRecurring = valueRecurring
       }
       this.setScores(id || this.useCaseIdCounter - 1)
     },

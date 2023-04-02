@@ -1,70 +1,77 @@
 <script lang ="ts">
   import { mapStores } from 'pinia'
   import { useUseCase } from '../dataStore/useCase'
-  import { Bubble } from 'vue-chartjs'
-  import { Chart as ChartJS, LinearScale, PointElement, Tooltip, Legend } from 'chart.js'
-
-  ChartJS.register(LinearScale, PointElement, Tooltip, Legend)
+  import { useProcess } from '../dataStore/process'
+  import Plotly from 'plotly.js-dist'
 
   export default {
     name: 'ValueCaseOverview',
-    components: { Bubble },
-    data () {
-      return {
-        loaded: false,
-        chartData: {
-          datasets: [],
+    data: () => ({
+      layout: {
+        showlegend: true,
+        title: 'Value Cases in the Backlog',
+        height: 600,
+        width: 600,
+        margin: {
+          l: 0,
+          r: 0,
+          b: 0,
+          t: 0,
         },
-        chartOptions: {
-          plugins: {
-            legend: {
-              display: false,
+      },
+      cases: [
+        {
+          type: 'sunburst',
+          ids: [],
+          labels: [],
+          parents: [],
+          values: [],
+          branchvalues: 'total',
+          insidetextorientation: 'radial',
+          outsidetextfont: {
+            size: 20,
+            color: '#377eb8',
+          },
+          leaf: {
+            opacity: 0.7,
+          },
+          marker: {
+            line: {
+              width: 3,
             },
           },
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: {
-              min: 1,
-              max: 50,
-            },
-            y: {
-              min: 1,
-              max: 50,
-            },
-          },
         },
-      }
-    },
+      ],
+    }),
     computed: {
-      ...mapStores(useUseCase),
+      ...mapStores(useUseCase, useProcess),
     },
-    async mounted () {
-      this.loaded = false
-      this.useCaseStore.getUseCasesInBucket(0).forEach(useCase => {
-        this.chartData.datasets.push(
-          {
-            label: useCase.label,
-            backgroundColor: '#7C8CF8',
-            data: [{
-              x: 10 * this.useCaseStore.getItemScoreByIdLabel(useCase.id, 'Value potential'),
-              y: 10 * this.useCaseStore.getItemScoreByIdLabel(useCase.id, 'Strategic goals'),
-              r: 10 * this.useCaseStore.getItemScoreByIdLabel(useCase.id, 'Risk minimization'),
-            }],
+    mounted () {
+      this.processStore.processes.forEach(process => {
+        this.cases[0].ids.push(process.label)
+        this.cases[0].labels.push(process.label)
+        this.cases[0].parents.push('')
+        this.cases[0].values.push(this.useCaseStore.useCases.filter(useCase => useCase.bucketID !== 5 &&
+          useCase.processId === process.id).length)
+        for (let i = 0; i < 5; i++) {
+          if (this.useCaseStore.useCases.filter(useCase => useCase.bucketID === i &&
+            useCase.processId === process.id).length > 0) {
+            let label = ''
+            i === 0 ? label = 'Backlog' : i === 1 ? label = 'Core Development' : i === 2
+              ? label = 'Insight' : i === 3 ? label = 'Action' : label = 'Value'
+            this.cases[0].ids.push(process.label + ' - ' + label)
+            this.cases[0].labels.push(label)
+            this.cases[0].parents.push(process.label)
+            this.cases[0].values.push(this.useCaseStore.useCases.filter(useCase => useCase.bucketID === i &&
+              useCase.processId === process.id).length)
           }
-        )
+        }
       })
-      this.loaded = true
+      Plotly.newPlot('valueCaseOverview', this.cases, this.layout)
     },
   }
 </script>
 
 <template>
-  <v-card>
-    <Bubble
-      v-if="loaded"
-      :options="chartOptions"
-      :data="chartData"
-    />
-  </v-card>
+  <div id='valueCaseOverview'></div>
 </template>
