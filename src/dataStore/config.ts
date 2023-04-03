@@ -422,6 +422,6 @@ export const useConfig = defineStore('config', {
         useCase.items.filter(item => item.label === oldValue)[0].label = newValue
       })
     },
-    persist: true,
   },
+  persist: true,
 })
