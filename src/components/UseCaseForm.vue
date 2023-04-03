@@ -18,7 +18,7 @@
         },
         tickLabelsHighLow: {
           1: 'Very high',
-          2: 'high',
+          2: 'High',
           3: 'Medium',
           4: 'Low',
           5: 'Very low',
@@ -29,6 +29,13 @@
           3: 'Neutral',
           4: 'Positive',
           5: 'Very positive',
+        },
+        tickLabelsVolume: {
+          1: 'Very small',
+          2: 'Small',
+          3: 'Medium',
+          4: 'Big',
+          5: 'Very big',
         },
         tickLabelsState: {
           0: 'S0',
@@ -246,6 +253,33 @@
                         </v-tooltip>
                       </v-expansion-panel-title>
                       <v-expansion-panel-text v-if="category.items != undefined">
+                        <v-card v-if="category.label==='Value potential'">
+                          <v-card-title>
+                            {{ "Volume" }}
+                            <v-tooltip
+                              open-delay=1000
+                              content-class="custom-tooltip"
+                              activator="parent"
+                              location="top left"
+                            >
+                              <div>
+                                Assess the impacted volume of this value case.
+                              </div>
+                            </v-tooltip>
+                          </v-card-title>
+                          <v-card-text>
+                            <v-slider
+                              v-model="this.configStore.useCaseFormCache.volume"
+                              :ticks="tickLabelsVolume"
+                              :color="this.color(this.configStore.useCaseFormCache.volume)"
+                              :min="1"
+                              :max="5"
+                              step="1"
+                              show-ticks="always"
+                              tick-size="4"
+                            />
+                          </v-card-text>
+                        </v-card>
                         <v-card
                           v-for="(item, index) in category.items"
                           :key="index"

@@ -53,6 +53,7 @@ export const useConfig = defineStore('config', {
         endDate: null,
         monetary: false,
         monetaryValue: 0,
+        volume: 3,
         valueRecurring: false,
         categories: [] as Category[],
       },
@@ -132,6 +133,7 @@ export const useConfig = defineStore('config', {
         endDate: null,
         monetary: false,
         monetaryValue: 0,
+        volume: 3,
         valueRecurring: false,
         categories: [] as Category[],
       }
@@ -163,6 +165,7 @@ export const useConfig = defineStore('config', {
           this.useCaseFormCache.endDate,
           this.useCaseFormCache.monetary,
           this.useCaseFormCache.monetaryValue,
+          this.useCaseFormCache.volume,
           this.useCaseFormCache.valueRecurring,
           this.useCaseFormCache.id
         )
@@ -178,6 +181,7 @@ export const useConfig = defineStore('config', {
           this.useCaseFormCache.endDate,
           this.useCaseFormCache.monetary,
           this.useCaseFormCache.monetaryValue,
+          this.useCaseFormCache.volume,
           this.useCaseFormCache.valueRecurring
         )
       }
@@ -201,6 +205,10 @@ export const useConfig = defineStore('config', {
         this.useCaseFormCache.duration = useUseCase().getDurationById(id)
         this.useCaseFormCache.startDate = useUseCase().getStartDateById(id)
         this.useCaseFormCache.endDate = useUseCase().getEndDateById(id)
+        this.useCaseFormCache.monetary = useUseCase().getMonetaryById(id)
+        this.useCaseFormCache.monetaryValue = useUseCase().getMonetaryValueById(id)
+        this.useCaseFormCache.volume = useUseCase().getVolumeById(id)
+        this.useCaseFormCache.valueRecurring = useUseCase().getValueRecurringById(id)
         this.useCaseFormCache.processLabel = useProcess().getLabelById(this.useCaseFormCache.processId)
         const categories = _.cloneDeep(this.categoryTemplate)
         categories.forEach(category => {
@@ -260,7 +268,7 @@ export const useConfig = defineStore('config', {
         useUseCase().setScores(useCase.id)
       })
     },
-    calculateRating (attributes: Array<Attribute>, processId: number) {
+    calculateRating (attributes: Array<Attribute>, processId: number, volume: number) {
       let score = 0
       let weightCache = 0
       let strategicScore = 0
@@ -288,12 +296,12 @@ export const useConfig = defineStore('config', {
         weightCache = weightCache + useProcess().getWeight(processId, item.label)
       })
       valueScore = valueScore / weightCache
-      score = (strategicScore * useStrategic().categories[0].weight +
+      score = Math.pow((strategicScore * useStrategic().categories[0].weight +
         riskScore * useStrategic().categories[1].weight * useStrategic().categories[1].riskFactor +
-        valueScore * useStrategic().categories[2].weight) / (
+        valueScore * useStrategic().categories[2].weight * volume / 3) / (
         useStrategic().categories[0].weight +
         useStrategic().categories[1].weight * useStrategic().categories[1].riskFactor +
-        useStrategic().categories[2].weight)
+        useStrategic().categories[2].weight * volume / 3), Math.log(100) / Math.log(5))
       const subScores = [
         { label: 'Strategic goals', score: strategicScore },
         { label: 'Risk minimization', score: riskScore },
@@ -311,8 +319,8 @@ export const useConfig = defineStore('config', {
         useStrategic().resources[0].fteAvailable = (useStrategic().resources[0].fteAvailable - useCase.resourceDemand[0].fte).toFixed(2)
         useStrategic().resources[1].fteAvailable = (useStrategic().resources[1].fteAvailable - useCase.resourceDemand[1].fte).toFixed(2)
         useProcess().getProcessById(useUseCase().getProcessIdById(useCase.id))[0].resources.fteAvailable =
-          useProcess().getProcessById(useUseCase().getProcessIdById(useCase.id))[0].resources.fteAvailable -
-          useCase.resourceDemand[2].fte
+          (useProcess().getProcessById(useUseCase().getProcessIdById(useCase.id))[0].resources.fteAvailable -
+          useCase.resourceDemand[2].fte).toFixed(2)
       })
       useProcess().processes.forEach(process => {
         if (useUseCase().useCases.filter(useCase => useCase.bucketID === 1).map(useCase => useCase.processId).includes(process.id)) {
@@ -339,7 +347,7 @@ export const useConfig = defineStore('config', {
         option.forEach(id => {
           if (!processualDemands.map(process => process.processId).includes(useUseCase().getProcessIdById(id))) {
             processualDemands.push({ processId: useUseCase().getProcessIdById(id), demand: 0 } as ProcessualDemand)
-            if (useProcess().getCoreStatusById(useUseCase().getUseCaseById(id).processId)) {
+            if (!useProcess().getCoreStatusById(useUseCase().getUseCaseById(id).processId)) {
               technicalDemand = technicalDemand +
                 useProcess().getProcessById(useUseCase().getUseCaseById(id).processId)[0].resourceDemandCore[0].fte
               analyticalDemand = analyticalDemand +

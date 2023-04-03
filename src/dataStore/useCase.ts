@@ -20,6 +20,7 @@ export interface UseCase {
   endDate: Date,
   monetary: boolean,
   monetaryValue: number,
+  volume: number,
   valueRecurring: boolean,
   items: Array<Attribute>,
 }
@@ -71,6 +72,18 @@ export const useUseCase = defineStore('useCase', {
     getEndDateById: state => {
       return useCaseId => state.useCases[useCaseId].endDate
     },
+    getMonetaryById: state => {
+      return useCaseId => state.useCases[useCaseId].monetary
+    },
+    getMonetaryValueById: state => {
+      return useCaseId => state.useCases[useCaseId].monetaryValue
+    },
+    getVolumeById: state => {
+      return useCaseId => state.useCases[useCaseId].volume
+    },
+    getValueRecurringById: state => {
+      return useCaseId => state.useCases[useCaseId].valueRecurring
+    },
     getOptimalPortfolioById: state => {
       return useCaseId => state.useCases[useCaseId].optimalPortfolio
     },
@@ -81,7 +94,7 @@ export const useUseCase = defineStore('useCase', {
 
   actions: {
     setUseCase (label: string, processId: number, state: number, items: Array<Attribute>,
-      resourceDemand: [], duration, startDate, endDate, monetary, monetaryValue, valueRecurring, id?: number) {
+      resourceDemand: [], duration, startDate, endDate, monetary, monetaryValue, volume, valueRecurring, id?: number) {
       if (id === undefined) {
         this.useCases.push({
           id: this.useCaseIdCounter,
@@ -96,6 +109,7 @@ export const useUseCase = defineStore('useCase', {
           endDate,
           monetary,
           monetaryValue,
+          volume,
           valueRecurring,
           processId,
           items,
@@ -112,21 +126,25 @@ export const useUseCase = defineStore('useCase', {
         this.getUseCaseById(id).endDate = endDate
         this.getUseCaseById(id).monetary = monetary
         this.getUseCaseById(id).monetaryValue = monetaryValue
+        this.getUseCaseById(id).volume = volume
         this.getUseCaseById(id).valueRecurring = valueRecurring
       }
       this.setScores(id || this.useCaseIdCounter - 1)
     },
     setScores (id) {
-      this.getUseCaseById(id).score = useConfig().calculateRating(this.getUseCaseById(id).items, this.getProcessIdById(id)).score
-      useConfig().calculateRating(this.getUseCaseById(id).items, this.getProcessIdById(id)).subScores.forEach(obj => {
-        try {
-          this.getUseCaseById(id).items.filter(item => item.label === obj.label)[0].score = obj.score
-        } catch (error) {
-          Array.prototype.push.apply(
-            this.getUseCaseById(id).items,
-            useConfig().calculateRating(this.getUseCaseById(id).items, this.getProcessIdById(id)).subScores)
-        }
-      })
+      console.log('Test')
+      this.getUseCaseById(id).score = useConfig().calculateRating(this.getUseCaseById(id).items,
+        this.getProcessIdById(id), this.getVolumeById(id)).score
+      useConfig().calculateRating(this.getUseCaseById(id).items, this.getProcessIdById(id), this.getVolumeById(id))
+        .subScores.forEach(obj => {
+          try {
+            this.getUseCaseById(id).items.filter(item => item.label === obj.label)[0].score = obj.score
+          } catch (error) {
+            Array.prototype.push.apply(
+              this.getUseCaseById(id).items,
+              useConfig().calculateRating(this.getUseCaseById(id).items, this.getProcessIdById(id)).subScores)
+          }
+        })
     },
     updateBucket (id, bucketID) {
       this.useCases[id].bucketID = bucketID
