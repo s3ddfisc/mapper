@@ -57,7 +57,7 @@
       </v-col>
     </v-row><br />
     <v-progress-linear
-      :model-value="useCaseStore.getScoreById(id)*25 - 25"
+      :model-value="useCaseStore.getScoreById(id)"
       color="secondary"
       bg-color="primary"
       height="20"

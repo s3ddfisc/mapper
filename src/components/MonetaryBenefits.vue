@@ -22,7 +22,6 @@
     mounted () {
       const d = new Date()
       const month = d.getMonth() + 1
-      console.log(month)
       const year = d.getFullYear()
       for (let p = 0; p < 60; p++) {
         let pmonth = month + p
