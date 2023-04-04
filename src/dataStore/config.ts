@@ -296,12 +296,12 @@ export const useConfig = defineStore('config', {
         weightCache = weightCache + useProcess().getWeight(processId, item.label)
       })
       valueScore = valueScore / weightCache
-      score = Math.pow((strategicScore * useStrategic().categories[0].weight +
+      score = 39.4 * Math.atan(1.23 * (((strategicScore * useStrategic().categories[0].weight +
         riskScore * useStrategic().categories[1].weight * useStrategic().categories[1].riskFactor +
         valueScore * useStrategic().categories[2].weight * volume / 3) / (
         useStrategic().categories[0].weight +
         useStrategic().categories[1].weight * useStrategic().categories[1].riskFactor +
-        useStrategic().categories[2].weight * volume / 3), Math.log(100) / Math.log(5))
+        useStrategic().categories[2].weight * volume / 3)) - 3)) + 50
       const subScores = [
         { label: 'Strategic goals', score: strategicScore },
         { label: 'Risk minimization', score: riskScore },
